@@ -1,15 +1,24 @@
-import { IS_NUMBER, IsEmail, IsEnum, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsEmail, IsEnum, IsNotEmpty } from 'class-validator';
+import { Role } from '@prisma/client';
 
 export class CreateUserDto {
-    @IsString()
-    @IsNotEmpty()
-    name: string;
-    @IsEmail()
-    email: string;
-    @IsNumber()
-    mobile: number;
-    @IsEnum([ "SUPERADMIN" , "ADMIN" , "USER"],{
-        message: "Please provide valid role"
-    })
-    role: "SUPERADMIN" | "ADMIN" | "USER";
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty()
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  mobile: number;
+
+  @ApiProperty({ enum: Role })
+  @IsEnum(Role)
+  @IsNotEmpty()
+  role: Role;
 }

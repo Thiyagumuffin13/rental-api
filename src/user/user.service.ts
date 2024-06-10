@@ -1,8 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { DatabaseService } from 'src/database/database.service';
-import { Prisma } from '@prisma/client';
+import { Prisma, Role } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -46,10 +44,10 @@ export class UserService {
 // ]
 
   getUserDatas(){
-    return [];
+    return this.dbService.user.count();
   }
 
-  async findAll(role?: 'SUPERADMIN' | 'USER' | 'ADMIN') {
+  async findAll(role?: Role) {
     console.log("--role--",role);
     
     // if (role) {
