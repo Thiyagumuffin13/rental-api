@@ -3,7 +3,9 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Prisma } from '@prisma/client';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
+//@SkipThrottle() // use here for skipping all routes
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -13,6 +15,7 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
+  @SkipThrottle({default: false}) // if false, for specific route skipping the multiple api request will disable
   @Get()
   findAll(@Query('role') role?: 'SUPERADMIN' | 'USER' | 'ADMIN') {
     return this.userService.findAll(role);
@@ -32,7 +35,7 @@ export class UserController {
   // findOne(@Param('id') id: string) { // without parseint pipe we need to user +id and datatype as string
   //   return this.userService.findOne(+id);
   // }
-
+  @Throttle({user1:{ttl:3000, limit:1}}) // make specific route as blcoking multiple api request with limit and time
   @Get(':id')
   findOne(@Param('id', ParseIntPipe)id: number){
     return this.userService.findOne(id);
