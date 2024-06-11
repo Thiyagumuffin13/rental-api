@@ -8,12 +8,13 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggerMiddleware } from './middleware/logger.middleware';
 import { LoggingInterceptor } from './interceptor/logger.interceptor';
 import { LoggerService } from './logger/logger.service';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [UserModule, DatabaseModule, ThrottlerModule.forRoot([{
     ttl: 5000,
     limit:3
-  },])],
+  },]), AuthModule],
   controllers: [AppController],
   providers: [AppService,{
     provide: APP_GUARD,

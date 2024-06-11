@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsEmail, IsEnum, IsNotEmpty } from 'class-validator';
+import { IsString, IsEmail, IsEnum, IsNotEmpty, Matches, MinLength } from 'class-validator';
 import { Role } from '@prisma/client';
 
 export class CreateUserDto {
@@ -9,16 +9,27 @@ export class CreateUserDto {
   name: string;
 
   @ApiProperty()
-  @IsEmail()
+  @IsEmail({}, { message: 'Email must be a valid email address' })
   @IsNotEmpty()
   email: string;
 
   @ApiProperty()
-  @IsNotEmpty()
-  mobile: number;
+  @IsString()
+  @Matches(/^[0-9]{10}$/, { message: 'Mobile number must be exactly 10 digits long' })
+  mobile: string;
+
+  @ApiProperty()
+  @IsString()
+  @MinLength(6)
+  password: string;
+
+  @ApiProperty()
+  @IsString()
+  @MinLength(6)
+  confirmPassword: string;
 
   @ApiProperty({ enum: Role })
-  @IsEnum(Role)
-  @IsNotEmpty()
+  //@IsEnum(Role)
+  
   role: Role;
 }
