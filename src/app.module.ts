@@ -1,10 +1,13 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { DatabaseModule } from './database/database.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggerMiddleware } from './middleware/logger.middleware';
+import { LoggingInterceptor } from './interceptor/logger.interceptor';
+import { LoggerService } from './logger/logger.service';
 
 @Module({
   imports: [UserModule, DatabaseModule, ThrottlerModule.forRoot([{
@@ -15,6 +18,18 @@ import { APP_GUARD } from '@nestjs/core';
   providers: [AppService,{
     provide: APP_GUARD,
     useClass: ThrottlerGuard
-  }],
+  },
+  {
+    provide: APP_INTERCEPTOR,
+    useClass: LoggingInterceptor,
+  },
+  LoggerService
+],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes('*'); // Apply to all routes
+  }
+}
