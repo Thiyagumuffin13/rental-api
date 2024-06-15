@@ -5,6 +5,7 @@ import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { LoginUserDto } from 'src/user/dto/login-user.dto';
 import { RolesGuard } from 'src/guard/role.guard';
 import { JwtAuthGuard } from 'src/guard/jwt.guard';
+import { Roles } from 'src/decorator/roles.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -27,11 +28,21 @@ export class AuthController {
     return this.authService.login(loginUserDto);
   }
 
-  @Get('profile')
+  @Get('adminProfile')
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPERADMIN')
+  @ApiOperation({ summary: 'Get admin profile' })
+  @ApiResponse({ status: 200, description: 'Admin profile retrieved successfully.' })
+  getAdminProfile(@Request() req) {
+    return req.user;
+  }
+
+  @Get('userProfile')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('USER')
   @ApiOperation({ summary: 'Get user profile' })
   @ApiResponse({ status: 200, description: 'User profile retrieved successfully.' })
-  getProfile(@Request() req) {
+  getUserProfile(@Request() req) {
     return req.user;
   }
 }

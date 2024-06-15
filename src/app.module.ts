@@ -9,12 +9,13 @@ import { LoggerMiddleware } from './middleware/logger.middleware';
 import { LoggingInterceptor } from './interceptor/logger.interceptor';
 import { LoggerService } from './logger/logger.service';
 import { AuthModule } from './auth/auth.module';
+import { BackupModule } from './backup/backup.module';
 
 @Module({
   imports: [UserModule, DatabaseModule, ThrottlerModule.forRoot([{
     ttl: 5000,
     limit:3
-  },]), AuthModule],
+  },]), AuthModule,BackupModule ],
   controllers: [AppController],
   providers: [AppService,{
     provide: APP_GUARD,

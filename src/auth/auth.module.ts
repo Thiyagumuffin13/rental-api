@@ -9,7 +9,7 @@ import { JwtStrategy } from './auth.strategy';
 @Module({
     imports: [
       JwtModule.register({
-        secret: 'your_secret_key', // Replace with your secret key
+        secret: 'N[a`w$/oX.Js(9e', // Replace with your secret key
         signOptions: { expiresIn: '1h' },
       }),
     ],
