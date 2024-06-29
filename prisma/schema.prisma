@@ -20,8 +20,21 @@ model User {
   mobile    String @unique
   password  String 
   role      Role
+  receiptStructure  ReceiptStructure? // One-to-one relationship
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model ReceiptStructure {
+  id            Int      @id @default(autoincrement())
+  rentPrice     Float
+  advancePrice  Float
+  ebPrice       Float
+  waterPrice    Float
+  userId        Int      @unique
+  user          User     @relation(fields: [userId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 enum Role {
