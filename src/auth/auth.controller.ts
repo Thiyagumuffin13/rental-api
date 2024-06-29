@@ -1,16 +1,17 @@
-import { Controller, Post, Body, UseGuards, Get, Request, ValidationPipe } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Request, ValidationPipe, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { LoginUserDto } from 'src/user/dto/login-user.dto';
 import { RolesGuard } from 'src/guard/role.guard';
 import { JwtAuthGuard } from 'src/guard/jwt.guard';
 import { Roles } from 'src/decorator/roles.decorator';
+import { UserService } from 'src/user/user.service';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService,private readonly userService: UserService) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Register user' })
@@ -45,4 +46,12 @@ export class AuthController {
   getUserProfile(@Request() req) {
     return req.user;
   }
+
+  // @Get('userList')
+  // @ApiOperation({ summary: 'Find all users' })
+  // @ApiQuery({ name: 'role', required: false, enum: Role })
+  // @ApiResponse({ status: 200, description: 'Return all users.' })
+  // findAll(@Query('role') role?: Role) {
+  //   return this.userService.findAll(role);
+  // }
 }

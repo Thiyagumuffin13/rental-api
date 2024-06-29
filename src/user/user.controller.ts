@@ -1,10 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, ValidationPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, ValidationPipe, Query, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Prisma, Role } from '@prisma/client';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { RolesGuard } from 'src/guard/role.guard';
+import { JwtAuthGuard } from 'src/guard/jwt.guard';
+import { Roles } from 'src/decorator/roles.decorator';
 
 //@SkipThrottle() // use here for skipping all routes
 @ApiTags('user')
@@ -13,15 +16,19 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
   
   @Post()
+  @Roles('SUPERADMIN','ADMIN')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Create user' })
   @ApiResponse({ status: 201, description: 'The user has been successfully created.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
     create(@Body(ValidationPipe) createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto as Prisma.UserCreateInput);
   }
-
+ 
   @SkipThrottle({default: false}) // if false, for specific route skipping the multiple api request will disable
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
+  @Roles('SUPERADMIN','ADMIN')
   @ApiOperation({ summary: 'Find all users' })
   @ApiQuery({ name: 'role', required: false, enum: Role })
   @ApiResponse({ status: 200, description: 'Return all users.' })
@@ -33,6 +40,8 @@ export class UserController {
   /*if we use this static route after the below dynamic route it will still work as dynamic route. 
   works as waterfall model which order matters here*/
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPERADMIN','ADMIN')
   @Get('userCount') // static route has only userDatas are route and no dynamic datas
   @ApiOperation({ summary: 'Get user count' })
   @ApiResponse({ status: 200, description: 'Return user count.' })
@@ -47,6 +56,8 @@ export class UserController {
   // }
   @Throttle({user1:{ttl:3000, limit:1}}) // make specific route as blcoking multiple api request with limit and time
   @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPERADMIN','ADMIN')
   @ApiOperation({ summary: 'Find one user by ID' })
   @ApiParam({ name: 'id', type: 'integer', description: 'User ID' })
   @ApiResponse({ status: 200, description: 'Return user by ID.' })
@@ -57,6 +68,8 @@ export class UserController {
 
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPERADMIN','ADMIN')
   @ApiOperation({ summary: 'Update user by ID' })
   @ApiParam({ name: 'id', type: 'string', description: 'User ID' })
   @ApiBody({
@@ -68,10 +81,13 @@ export class UserController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPERADMIN','ADMIN')
   @ApiOperation({ summary: 'Delete user by ID' })
   @ApiParam({ name: 'id', type: 'string', description: 'User ID' })
   @ApiResponse({ status: 200, description: 'User successfully deleted.' })
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
   }
+  
 }

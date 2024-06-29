@@ -4,16 +4,15 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { DatabaseService } from 'src/database/database.service';
 import { JwtStrategy } from './auth.strategy';
+import { UserService } from 'src/user/user.service';
+import { JwtConfigModule } from 'src/jwt-config/jwt-config.module';
 
 
 @Module({
     imports: [
-      JwtModule.register({
-        secret: 'N[a`w$/oX.Js(9e', // Replace with your secret key
-        signOptions: { expiresIn: '1h' },
-      }),
+      JwtConfigModule
     ],
     controllers: [AuthController],
-    providers: [AuthService, JwtStrategy, DatabaseService],
+    providers: [AuthService, JwtStrategy, DatabaseService,UserService],
   })
 export class AuthModule {}
