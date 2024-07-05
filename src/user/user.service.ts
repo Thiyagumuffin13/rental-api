@@ -58,6 +58,7 @@ export class UserService {
     // return this.users
     const selectFields = {
       select: {
+        id: true,
         name: true,
         email: true,
         mobile: true,

@@ -2,6 +2,7 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateReceiptStructureDto } from 'src/user/dto/create-receipt-structure.dto';
+import { UpdateReceiptStructureDto } from 'src/user/dto/update-receipt-structure.dto';
 
 @Injectable()
 export class ReceiptStructureService {
@@ -41,5 +42,39 @@ export class ReceiptStructureService {
     return this.dbService.receiptStructure.findMany({
         
       });
+  }
+  async update(id: number, updateReceiptStructureDto: UpdateReceiptStructureDto) {
+    const receiptStructure = await this.findById(id);
+    console.log("===-===",receiptStructure);
+    
+    if (!receiptStructure) {
+      throw new NotFoundException(`Receipt Structure not found for ID ${id}`);
+    }
+
+    return this.dbService.receiptStructure.update({
+      where: {
+        id,
+      },
+      data: updateReceiptStructureDto,
+    });
+  }
+
+  async delete(id: number) {
+    const receiptStructure = await this.findById(id); 
+    if (!receiptStructure) {
+      throw new NotFoundException(`Receipt Structure not found for ID ${id}`);
+    }
+    
+    return this.dbService.receiptStructure.delete({
+      where: {
+        id,
+      }
+    })
+  } 
+
+  async findById(id: number) {
+    return await this.dbService.receiptStructure.findUnique({
+      where: { id}
+    });
   }
 }
