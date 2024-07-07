@@ -43,6 +43,7 @@ export class ReceiptStructureService {
         
       });
   }
+
   async update(id: number, updateReceiptStructureDto: UpdateReceiptStructureDto) {
     const receiptStructure = await this.findById(id);
     console.log("===-===",receiptStructure);
@@ -77,4 +78,5 @@ export class ReceiptStructureService {
       where: { id}
     });
   }
+  
 }

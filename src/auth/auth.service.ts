@@ -21,6 +21,22 @@ export class AuthService {
     if (password !== confirmPassword) {
       throw new BadRequestException('Passwords do not match');
     }
+    const existingEmail = await this.dbService.user.findUnique({
+      where: { email: email },
+    });
+  
+    if (existingEmail) {
+      throw new BadRequestException('Email already exists');
+    }
+  
+    const existingMobile = await this.dbService.user.findUnique({
+      where: { mobile: mobile },
+    });
+  
+    if (existingMobile) {
+      throw new BadRequestException('Mobile number already exists');
+    }
+  
 
     const hashedPassword = await bcrypt.hash(password, 10);
 

@@ -11,9 +11,10 @@ import { LoggerService } from './logger/logger.service';
 import { AuthModule } from './auth/auth.module';
 import { BackupModule } from './backup/backup.module';
 import { ReceiptStructureModule } from './receipt-structure/receipt-structure.module';
+import { MonthlyRentModule } from './monthy-rent/monthly-rent.module';
 
 @Module({
-  imports: [UserModule, DatabaseModule, ReceiptStructureModule,ThrottlerModule.forRoot([{
+  imports: [UserModule, DatabaseModule, ReceiptStructureModule,MonthlyRentModule, ThrottlerModule.forRoot([{
     ttl: 5000,
     limit:3
   },]), AuthModule,BackupModule ],
