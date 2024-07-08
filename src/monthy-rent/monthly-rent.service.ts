@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateMonthlyRentDto } from 'src/user/dto/create-monthly-rent.dto';
 
@@ -27,6 +27,7 @@ export class MonthlyRentService {
 
     const monthlyRent = await this.dbService.monthlyRent.create({
       data: {
+        // also save rentprice, their from & to date, also month count of every day. try to save the past ebunit in receiptstru instead of geting in input post
         pastEbUnit: pastEbUnit,
         currentEbUnit: currentEbUnit,
         ebUnitCharges: ebUnitCharges,
@@ -41,8 +42,17 @@ export class MonthlyRentService {
   }
 
   async getAll(){
-    return this.dbService.monthlyRent.findMany({
-        
-      });
+    try {
+      const rents = await this.dbService.monthlyRent.findMany();
+      
+      if (!rents || rents.length === 0) {
+        throw new NotFoundException('No entries found in the monthlyRent table');
+      }
+      
+      return rents;
+    } catch (error) {
+      console.error('Error fetching monthly rents:', error.message);
+      throw new InternalServerErrorException('Error fetching monthly rents');
+    }
   }
 }
