@@ -19,11 +19,15 @@ export class MonthlyRentService {
       throw new NotFoundException('ReceiptStructure not found for the given userId');
     }
 
-    const { rentPrice, ebPrice, waterPrice } = receiptStructure;
+    const { rentPrice, ebPrice, waterPrice, rentalInitiationDate } = receiptStructure;
 
     const ebUnitCharges = (currentEbUnit - pastEbUnit) * ebPrice;
 
     const totalRentPrice = rentPrice + ebUnitCharges + (waterPrice * familyMembers);
+
+    const totalMonthStayed = this.calculateMonthsStayed(new Date(rentalInitiationDate), new Date());
+
+    const { billingStartDate, billingEndDate  } = this.calculateStartAndEndDate(new Date(rentalInitiationDate), totalMonthStayed);
 
     const monthlyRent = await this.dbService.monthlyRent.create({
       data: {
@@ -34,6 +38,10 @@ export class MonthlyRentService {
         familyMembers: familyMembers,
         totalRentPrice: totalRentPrice,
         receiptStructureId: receiptStructure.id,
+        totalMonthStayed: totalMonthStayed,
+        billingStartDate: billingStartDate,
+        billingEndDate: billingEndDate,
+        rentPrice :  receiptStructure.rentPrice,
         userId: userId,
       },
     });
@@ -54,5 +62,24 @@ export class MonthlyRentService {
       console.error('Error fetching monthly rents:', error.message);
       throw new InternalServerErrorException('Error fetching monthly rents');
     }
+  }
+
+  private calculateMonthsStayed(startDate: Date, endDate: Date): number {
+    const startYear = startDate.getFullYear();
+    const startMonth = startDate.getMonth();
+    const endYear = endDate.getFullYear();
+    const endMonth = endDate.getMonth();
+
+    return (endYear - startYear) * 12 + (endMonth - startMonth);
+  }
+
+  private calculateStartAndEndDate(rentalInitiationDate: Date, monthsToAdd: number): { billingStartDate: Date, billingEndDate: Date } {
+    const billingStartDate = new Date(rentalInitiationDate);
+    billingStartDate.setMonth(billingStartDate.getMonth() + monthsToAdd);
+    
+    const billingEndDate = new Date(billingStartDate);
+    billingEndDate.setMonth(billingStartDate.getMonth() + 1);
+
+    return { billingStartDate, billingEndDate };
   }
 }

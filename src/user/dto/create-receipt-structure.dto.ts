@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsDate, isDate, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateReceiptStructureDto {
   @IsNotEmpty()
@@ -20,4 +21,9 @@ export class CreateReceiptStructureDto {
   @IsNotEmpty()
   @IsNumber()
   userId: number;
+
+  @IsNotEmpty()
+  @IsDate()
+  @Transform(({ value }) => new Date(value))
+  rentalInitiationDate: Date;
 }

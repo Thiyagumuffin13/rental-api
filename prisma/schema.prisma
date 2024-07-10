@@ -32,6 +32,7 @@ model ReceiptStructure {
   advancePrice  Float
   ebPrice       Float
   waterPrice    Float
+  rentalInitiationDate    DateTime
   userId        Int              @unique
   user          User             @relation(fields: [userId], references: [id])
   createdAt     DateTime         @default(now())
@@ -45,7 +46,11 @@ model MonthlyRent {
   currentEbUnit       Float
   ebUnitCharges       Float
   familyMembers       Int
+  rentPrice           Float
+  totalMonthStayed    Int    
   totalRentPrice      Float
+  billingStartDate    DateTime
+  billingEndDate      DateTime
   receiptStructureId  Int
   receiptStructure    ReceiptStructure @relation(fields: [receiptStructureId], references: [id])
   userId              Int

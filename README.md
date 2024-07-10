@@ -40,4 +40,8 @@ $ npx prisma generate
 $ npx prisma migrate pull
 $ npx prisma migrate deploy
 $ npx prisma migrate dev --name version1.0
+# for creating the migration file alone and not to affect in DB
+$ npx prisma migrate dev --create-only --name version1.2 
+
+
 ```

@@ -16,6 +16,10 @@ export class ReceiptStructureService {
           if (!userExists) {
             throw new NotFoundException(`User with ID ${createReceiptStructureDto.userId} not found`);
           }
+          if (typeof createReceiptStructureDto.rentalInitiationDate === 'string') {
+            createReceiptStructureDto.rentalInitiationDate = new Date(createReceiptStructureDto.rentalInitiationDate);
+          }
+    
           const existingReceiptStructure = await this.findByUserId(createReceiptStructureDto.userId);
     
           if (existingReceiptStructure) {
