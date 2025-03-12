@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { DatabaseService } from 'src/database/database.service';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { RegisterUserDto } from 'src/user/dto/register-user.dto';
 import { LoginUserDto } from 'src/user/dto/login-user.dto';
 
 
@@ -12,31 +12,39 @@ export class AuthService {
   constructor(
     private readonly dbService: DatabaseService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
-  async register(createUserDto: CreateUserDto) {
+  async register(createUserDto: RegisterUserDto) {
     const { name, email, mobile, password, confirmPassword, role } = createUserDto;
-    console.log("---create--",createUserDto);
-    
+    console.log("---create--", createUserDto);
+
     if (password !== confirmPassword) {
       throw new BadRequestException('Passwords do not match');
     }
     const existingEmail = await this.dbService.user.findUnique({
       where: { email: email },
     });
-  
+
     if (existingEmail) {
       throw new BadRequestException('Email already exists');
     }
-  
+
     const existingMobile = await this.dbService.user.findUnique({
       where: { mobile: mobile },
     });
-  
+
     if (existingMobile) {
       throw new BadRequestException('Mobile number already exists');
     }
-  
+    if (role === 'SUPERADMIN') {
+      const existingSuperAdmin = await this.dbService.user.findFirst({
+        where: { role: 'SUPERADMIN' },
+      });
+
+      if (existingSuperAdmin) {
+        throw new BadRequestException('SUPERADMIN role is already exists');
+      }
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -48,9 +56,9 @@ export class AuthService {
         password: hashedPassword,
         role: role || 'USER', // default role
       },
-      select: { name: true, email: true, mobile: true, role: true } 
+      select: { name: true, email: true, mobile: true, role: true }
     });
-    
+
     return createdUser;
     //return this.generateToken(user);
   }
@@ -73,5 +81,5 @@ export class AuthService {
       accessToken: this.jwtService.sign(payload),
     };
   }
-  
+
 }

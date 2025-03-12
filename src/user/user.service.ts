@@ -1,61 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { Prisma, Role } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly dbService: DatabaseService){ }
-//   private users = [
-//     {
-//         "id": 1,
-//         "name": "Leanne Graham",
-//         "email": "Sincere@april.biz",
-//         "mobile": 9874563210,
-//         "role": "ADMIN",
-//     },
-//     {
-//         "id": 2,
-//         "name": "Ervin Howell",
-//         "email": "Shanna@melissa.tv",
-//         "mobile": 9874563211,
-//         "role": "USER",
-//     },
-//     {
-//         "id": 3,
-//         "name": "Clementine Bauch",
-//         "email": "Nathan@yesenia.net",
-//         "mobile": 9874563213,
-//         "role": "SUPERADMIN",
-//     },
-//     {
-//         "id": 4,
-//         "name": "Patricia Lebsack",
-//         "email": "Julianne.OConner@kory.org",
-//         "mobile": 9874563277,
-//         "role": "USER",
-//     },
-//     {
-//         "id": 5,
-//         "name": "Chelsey Dietrich",
-//         "email": "Lucio_Hettinger@annie.ca",
-//         "mobile": 9874563275,
-//         "role": "ADMIN",
-//     }
-// ]
+  constructor(private readonly dbService: DatabaseService) { }
 
-  getUserDatas(){
+  getUserDatas() {
     return this.dbService.user.count();
   }
 
   async findAll(role?: Role) {
-    console.log("--role--",role);
-    
-    // if (role) {
-    //     const rolesArray = this.users.filter(user => user.role === role)
-    //     if (rolesArray.length === 0) throw new NotFoundException('User Role Not Found')
-    //     return rolesArray
-    // }
-    // return this.users
+    console.log("--role--", role);
     const selectFields = {
       select: {
         id: true,
@@ -64,10 +21,10 @@ export class UserService {
         mobile: true,
         role: true,
         createdAt: true,
-        updatedAt:true
+        updatedAt: true
       }
     };
-    if(role) return this.dbService.user.findMany({
+    if (role) return this.dbService.user.findMany({
       where: {
         role
       },
@@ -76,14 +33,9 @@ export class UserService {
     return this.dbService.user.findMany({
       ...selectFields
     });
-}
+  }
 
-async findOne(id: number) {
-    // const user = this.users.find(user => user.id === id)
-
-    // if (!user) throw new NotFoundException('User Not Found')
-
-    // return user
+  async findOne(id: number) {
     const user = await this.dbService.user.findUnique({
       where: {
         id
@@ -94,39 +46,29 @@ async findOne(id: number) {
         mobile: true,
         role: true,
         createdAt: true,
-        updatedAt:true
+        updatedAt: true
       }
     });
-  
+
     if (!user) {
       throw new NotFoundException('User Not Found');
     }
-  
+
     return user;
-}
+  }
 
-async create(createUserDto: Prisma.UserCreateInput) {
-    // const usersByHighestId = [...this.users].sort((a, b) => b.id - a.id)
-    // const newUser = {
-    //     id: usersByHighestId[0].id + 1,
-    //     ...createUserDto
-    // }
-    // this.users.push(newUser)
-    // return newUser
+  async create(createUserDto: Prisma.UserCreateInput) {
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
     return this.dbService.user.create({
-      data: createUserDto
+      data: {
+        ...createUserDto,
+        password: hashedPassword,
+        role: createUserDto.role ?? 'USER'
+      }
     })
-}
+  }
 
-async update(id: number, updateUserDto: Prisma.UserUpdateInput) {
-    // this.users = this.users.map(user => {
-    //     if (user.id === id) {
-    //         return { ...user, ...updateUserDto }
-    //     }
-    //     return user
-    // })
-
-    // return this.findOne(id)
+  async update(id: number, updateUserDto: Prisma.UserUpdateInput) {
     const existingUser = await this.dbService.user.findUnique({
       where: {
         id,
@@ -143,24 +85,19 @@ async update(id: number, updateUserDto: Prisma.UserUpdateInput) {
         id,
       },
       select: {
-        id:true,
+        id: true,
         name: true,
         email: true,
         mobile: true,
         role: true,
         createdAt: true,
-        updatedAt:true
+        updatedAt: true
       },
       data: updateUserDto,
     });
-}
+  }
 
-async remove(id: number) {
-    // const removedUser = this.findOne(id)
-
-    // this.users = this.users.filter(user => user.id !== id)
-
-    // return removedUser
+  async remove(id: number) {
     const user = await this.dbService.user.findUnique({
       where: {
         id,

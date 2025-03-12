@@ -5,7 +5,7 @@ import { CreateMonthlyRentDto } from 'src/user/dto/create-monthly-rent.dto';
 
 @Injectable()
 export class MonthlyRentService {
-  constructor(private dbService: DatabaseService) {}
+  constructor(private dbService: DatabaseService) { }
 
   async calculateAndSaveMonthlyRent(createMonthlyRentDto: CreateMonthlyRentDto) {
 
@@ -27,7 +27,7 @@ export class MonthlyRentService {
 
     const totalMonthStayed = this.calculateMonthsStayed(new Date(rentalInitiationDate), new Date());
 
-    const { billingStartDate, billingEndDate  } = this.calculateStartAndEndDate(new Date(rentalInitiationDate), totalMonthStayed);
+    const { billingStartDate, billingEndDate } = this.calculateStartAndEndDate(new Date(rentalInitiationDate), totalMonthStayed);
 
     const monthlyRent = await this.dbService.monthlyRent.create({
       data: {
@@ -41,7 +41,7 @@ export class MonthlyRentService {
         totalMonthStayed: totalMonthStayed,
         billingStartDate: billingStartDate,
         billingEndDate: billingEndDate,
-        rentPrice :  receiptStructure.rentPrice,
+        rentPrice: receiptStructure.rentPrice,
         userId: userId,
       },
     });
@@ -49,15 +49,15 @@ export class MonthlyRentService {
     return monthlyRent;
   }
 
-  async getAll(){
+  async getAll() {
     try {
       const rents = await this.dbService.monthlyRent.findMany();
-      
+      console.log("---12-----", rents)
       if (!rents || rents.length === 0) {
-        throw new NotFoundException('No entries found in the monthlyRent table');
+        return { message: 'No entries found in the monthlyRent table', data: [] };
       }
-      
-      return rents;
+
+      return { message: 'Data retrieved successfully', data: rents };
     } catch (error) {
       console.error('Error fetching monthly rents:', error.message);
       throw new InternalServerErrorException('Error fetching monthly rents');
@@ -76,7 +76,7 @@ export class MonthlyRentService {
   private calculateStartAndEndDate(rentalInitiationDate: Date, monthsToAdd: number): { billingStartDate: Date, billingEndDate: Date } {
     const billingStartDate = new Date(rentalInitiationDate);
     billingStartDate.setMonth(billingStartDate.getMonth() + monthsToAdd);
-    
+
     const billingEndDate = new Date(billingStartDate);
     billingEndDate.setMonth(billingStartDate.getMonth() + 1);
 

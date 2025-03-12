@@ -1,7 +1,7 @@
 import { Controller, Post, Body, UseGuards, Get, Request, ValidationPipe, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery } from '@nestjs/swagger';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import { RegisterUserDto } from 'src/user/dto/register-user.dto';
 import { LoginUserDto } from 'src/user/dto/login-user.dto';
 import { RolesGuard } from 'src/guard/role.guard';
 import { JwtAuthGuard } from 'src/guard/jwt.guard';
@@ -11,13 +11,13 @@ import { UserService } from 'src/user/user.service';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService,private readonly userService: UserService) {}
+  constructor(private readonly authService: AuthService, private readonly userService: UserService) { }
 
   @Post('register')
   @ApiOperation({ summary: 'Register user' })
   @ApiResponse({ status: 201, description: 'User successfully registered.' })
   @ApiResponse({ status: 400, description: 'Bad request.' })
-  register(@Body(ValidationPipe) createUserDto: CreateUserDto) {
+  register(@Body(ValidationPipe) createUserDto: RegisterUserDto) {
     return this.authService.register(createUserDto);
   }
 
@@ -31,7 +31,8 @@ export class AuthController {
 
   @Get('adminProfile')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('SUPERADMIN')
+  @Roles('SUPERADMIN',)
+  @ApiBearerAuth('Authorization')
   @ApiOperation({ summary: 'Get admin profile' })
   @ApiResponse({ status: 200, description: 'Admin profile retrieved successfully.' })
   getAdminProfile(@Request() req) {
@@ -41,6 +42,7 @@ export class AuthController {
   @Get('userProfile')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('USER')
+  @ApiBearerAuth('Authorization')
   @ApiOperation({ summary: 'Get user profile' })
   @ApiResponse({ status: 200, description: 'User profile retrieved successfully.' })
   getUserProfile(@Request() req) {

@@ -40,6 +40,8 @@ CREATE TABLE "MonthlyRent" (
     "rentPrice" DOUBLE PRECISION NOT NULL,
     "totalMonthStayed" INTEGER NOT NULL,
     "totalRentPrice" DOUBLE PRECISION NOT NULL,
+    "billingStartDate" TIMESTAMP(3) NOT NULL,
+    "billingEndDate" TIMESTAMP(3) NOT NULL,
     "receiptStructureId" INTEGER NOT NULL,
     "userId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
